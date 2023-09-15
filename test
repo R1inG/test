@@ -1,0 +1,239 @@
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+struct ShoppingItem {
+	char name[50];
+	int quantity;
+	struct ShoppingItem* next; 
+};
+struct ShoppingItem* shoppingList = NULL;
+
+struct ShoppingItem *createList(void)
+{
+	struct ShoppingItem* head=NULL, * tail=NULL,*t;
+	t = (struct ShoppingItem*)malloc(sizeof(struct ShoppingItem));
+	scanf("%s", t->name);
+	while (strcmp(t->name,"xx")!=0)
+	{
+		scanf("%d", &t->quantity);
+		if (head == NULL)
+		{ 
+			t->next = NULL;
+			head = t;
+		}
+		else
+		{
+			tail->next=t;
+		}
+		tail=t;
+		tail->next = NULL;
+		t = (struct ShoppingItem*)malloc(sizeof(struct ShoppingItem));
+		scanf("%s %d", t->name, &t->quantity);
+	}
+	return head;
+}
+void addItem(char itemName[], int itemQuantity) {
+	struct ShoppingItem* newItem = (struct ShoppingItem*)malloc(sizeof(struct ShoppingItem));
+	strcpy(newItem->name, itemName);
+	newItem->quantity = itemQuantity;
+	newItem->next = shoppingList;
+	shoppingList = newItem;
+}
+void removeItem(char itemName[]) {
+	struct ShoppingItem* current = shoppingList;
+	struct ShoppingItem* previous = NULL;
+	while (current != NULL) {
+		if (strcmp(current->name, itemName) == 0) {
+			if (previous != NULL) {
+				previous->next = current->next;
+			}
+			else {
+				shoppingList = current->next;
+			}
+			free(current);
+			break;
+		}
+		previous = current;
+		current = current->next;
+
+	}
+}
+
+void displayList() {
+	struct ShoppingItem* current = shoppingList;
+	printf("购物清单:\n");
+	while (current != NULL) {
+		printf("%s - 数量：%d\n", current->name, current->quantity);
+		current = current->next;
+	}
+}
+
+void updateQuantity(char itemName[], int newItemQuantity) {
+	struct ShoppingItem* current = shoppingList;
+	while (current != NULL) {
+		if (strcmp(current->name, itemName) == 0) {
+
+			current->quantity = newItemQuantity;
+			break;
+		}
+		current = current->next;
+	}
+}
+
+void clearList() {
+	while (shoppingList != NULL) {
+		struct ShoppingItem* temp = (struct ShoppingItem*)malloc(sizeof(struct ShoppingItem));
+		temp = shoppingList;
+		shoppingList = shoppingList->next;
+		free(temp);
+	}
+}
+
+int totalQuantity() {
+	struct ShoppingItem* current = shoppingList;
+	int total = 0;
+	while (current != NULL) {
+		total += current->quantity;
+		current = current->next;
+
+	}
+	return total;
+}
+void findItem(char itemName[]) {
+	struct ShoppingItem* current = shoppingList;
+	printf("查找商品 \"%s\" ：\n", itemName);
+	while (current != NULL) {
+		if (strcmp(current->name, itemName) == 0) {
+			printf("%s - 数量：%d\n", current->name, current->quantity);
+			return;
+		}
+		current = current->next;
+	}
+	printf("未找到商品 \"%s\"。\n", itemName);
+}
+
+void sortList() {
+	struct ShoppingItem* current = shoppingList;
+	struct ShoppingItem* nextItem = NULL;
+	char tempName[50];
+	int tempQuantity;
+	while (current != NULL) {
+		nextItem = current->next;
+		while (nextItem != NULL) {
+			if (strcmp(current->name, nextItem->name) > 0) {
+
+				strcpy(tempName, current->name);
+				strcpy(current->name, nextItem->name);
+				strcpy(nextItem->name, tempName);
+
+				tempQuantity = current->quantity;
+				current->quantity = nextItem->quantity;
+				nextItem->quantity = tempQuantity;
+			}
+			nextItem = nextItem->next;
+		}
+		current = current->next;
+	}
+}
+
+void mergeLists(struct ShoppingItem** list1, struct ShoppingItem** list2) {
+	struct ShoppingItem* current = *list1;
+	while (current->next!=NULL)
+		current = current->next;
+	current->next = *list2;
+	*list2 = NULL; 
+}
+void deleteItem(char itemName[], int deleteAll) {
+	struct ShoppingItem* current = shoppingList;
+	struct ShoppingItem* prev = NULL;
+	while (current != NULL) {
+		if (strcmp(current->name, itemName) == 0) {
+			if (prev == NULL) {
+				struct ShoppingItem* temp = shoppingList;
+				shoppingList = shoppingList->next;
+				free(temp);
+				if (deleteAll==0) break;
+			}
+			else {
+				prev->next = current->next;
+				free(current);
+				current = prev->next;
+				if (deleteAll==0) break;
+			}
+		}
+		else {
+			prev = current;
+			current = current->next;
+		}
+	}
+}
+int main(void)
+{
+	printf("1. 添加商品到购物清单\n2. 从购物清单中移除商品\n3. 查看购物清单\n4. 修改购物清单中商品的数量\n5. 清空购物清单\n6. 计算购物清单中商品的总数量\n7. 查找购物清单中的商品\n8. 排序购物清单\n9. 合并购物清单\n10. 删除购物清单中的商品\n0.结束程序");
+	
+	int x;
+	char Name[50];
+	int Qunantity,election,total;
+	while (1) {
+		printf("\n输入1-10选择功能，其余输入结束程序\n");
+		scanf("%d", &x);
+		if (x == 1)//1. 添加商品到购物清单：ok
+		{
+			printf("请输入商品名称和商品数目\n");
+			scanf("%s %d", Name, &Qunantity);
+			addItem(Name,Qunantity);
+		}
+		else if (x == 2)//2. 从购物清单中移除商品：ok
+		{
+			printf("请输入要删除的商品名称\n");
+			scanf("%s", Name);
+			removeItem(Name);
+		}
+		else if (x == 3)//3. 查看购物清单：ok
+		{
+			displayList();
+		}
+		else if (x == 4)//4. 修改购物清单中商品的数量：ok
+		{
+			printf("请输入要修改的商品名称和数量\n");
+			scanf("%s %d", Name, &Qunantity);
+			updateQuantity(Name,Qunantity);
+		}
+		else if (x == 5)//5. 清空购物清单：ok
+		{
+			clearList();
+		}
+		else if (x == 6)//6. 计算购物清单中商品的总数量：ok
+		{
+			printf("%d\n",totalQuantity());
+		}
+		else if (x == 7)//7. 查找购物清单中的商品：ok
+		{
+			printf("输入查找的商品名称\n");
+			scanf("%s", Name);
+			findItem(Name);
+		}
+		else if (x == 8)//8. 排序购物清单：ok
+		{
+			sortList();
+		}
+		else if (x == 9)//9. 合并购物清单：
+		{
+			printf("输入要合并的购物清单\n");
+			struct ShoppingItem* list1;
+			list1 = createList();
+			mergeLists(&shoppingList,&list1);
+		}
+		else if (x == 10)//10. 删除购物清单中的商品：ok
+		{
+			printf("请输入删除的商品名称\n");
+			scanf("%s", Name);
+			printf("选择是否全部删除，是 输入 1  ， 否 输入 0\n");
+			scanf("%d", &election);
+			deleteItem(Name,election);
+		}
+		else if(x==0)
+		 	break;
+	}
+	return 0;
+}
